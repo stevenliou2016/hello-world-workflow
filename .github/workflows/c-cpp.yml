@@ -1,23 +1,41 @@
-name: C/C++ CI
+name: C++ Build & Run Hello World
 
+# 什麼時候執行這個 workflow
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  push:                     # 每次 push 時
+    branches: [main, master]
+  pull_request:             # 每次 PR 時
+    branches: [main, master]
+  workflow_dispatch:        # 允許你手動從 Actions 頁面觸發
+
+# 權限設定（提高安全性）
+permissions:
+  contents: read
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
+  build-and-run:
+    runs-on: ubuntu-latest          # 使用最新的 Ubuntu runner（內建 g++）
 
     steps:
-    - uses: actions/checkout@v4
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make
-    - name: make check
-      run: make check
-    - name: make distcheck
-      run: make distcheck
+      # 步驟 1：拉取程式碼
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 步驟 2：顯示 g++ 版本（debug 用，可選）
+      - name: Check g++ version
+        run: g++ --version
+
+      # 步驟 3：編譯 hello_world.cpp
+      - name: Compile hello_world.cpp
+        run: |
+          g++ -std=c++17 -Wall -o hello hello_world.cpp
+
+      # 步驟 4：執行程式並顯示輸出
+      - name: Run and verify output
+        run: |
+          ./hello
+          # 如果你想嚴格檢查輸出，可以加上這行（視你的輸出內容調整）
+          # ./hello | grep -q "Hello, World!" && echo "Output correct!" || exit 1
+
+      # （可選）如果未來有更多檔案或想用 CMake，這裡可以改成 CMake 方式
+
